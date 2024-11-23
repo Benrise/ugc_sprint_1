@@ -1,0 +1,108 @@
+services:
+    admin:
+      container_name: "admin"
+      build: ./services/admin
+      depends_on:
+        admin_db:
+          condition: service_healthy
+      volumes:
+        - ./services/admin/static:/opt/app/static
+      healthcheck:
+        test: ["CMD-SHELL", "[ -e /opt/app/static ]"]
+        interval: 5s
+        timeout: 10s
+        retries: 15    
+
+    admin_db:
+      container_name: "db"
+      build: ./services/admin_db
+      volumes:
+        - ./services/admin_db/data:/var/lib/postgresql/data
+      healthcheck:
+          test: ["CMD-SHELL", "pg_isready -d admin_db -U admin"] 
+          interval: 2s
+          timeout: 10s
+          retries: 30
+
+    auth:
+      container_name: "auth"
+      build: ./services/auth
+      depends_on:
+        auth_db:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+
+    auth_db:
+      container_name: "auth_db"
+      build: ./services/auth_db
+      volumes:
+        - ./services/auth_db/data:/var/lib/postgresql/data
+        - ./services/auth_db/docker-entrypoint-initdb:/docker-entrypoint-initdb.d/:ro
+      healthcheck:
+          test: ["CMD-SHELL", "pg_isready -d auth_db -U admin"] 
+          interval: 2s
+          retries: 100
+
+    fastapi:
+      container_name: "fastapi"
+      build: ./services/fastapi
+      depends_on:
+        - elasticsearch
+        - redis
+
+    elasticsearch:
+      container_name: "elasticsearch"
+      image: elasticsearch:8.12.1
+      volumes:
+        - ./services/es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+        - ./services/es/data:/usr/share/elasticsearch/data
+      healthcheck:
+        test: ["CMD-SHELL", "curl -s http://localhost:9200/_cat/health?h=status | grep -q green"]
+        retries: 300
+        interval: 2s
+
+    etl_loader:
+      container_name: "etl_loader"
+      ports: 
+        - ${ETL_ELASTIC_PORTS}
+      build: ./services/etl_loader
+      depends_on: 
+        elasticsearch:
+          condition: service_healthy
+        fastapi:
+          condition: service_healthy
+
+    jaeger:
+      image: jaegertracing/all-in-one:latest
+      container_name: jaeger
+      ports:
+        - ${JAEGER_PORTS}
+      depends_on:
+        nginx:
+          condition: service_started
+
+    redis:
+      build: ./services/redis
+      container_name: "redis"
+      volumes: 
+        - ./services/redis/data:/data
+      restart: always
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        timeout: 10s
+        retries: 5
+        start_period: 10s
+      ports:
+        - ${REDIS_PORTS}
+
+    nginx:
+      container_name: "nginx"
+      restart: always
+      build: ./services/nginx
+      volumes:
+        - ./services/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./services/nginx/configs:/etc/nginx/conf.d:ro
+        - ./services/admin/static:/static/:ro
+      ports:
+        - ${NGINX_PORTS}
