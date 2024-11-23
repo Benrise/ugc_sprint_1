@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 dsn = f'postgresql+asyncpg://{pg.user}:{pg.password}@{pg.host}:{pg.port}/{pg.db}'
-engine = create_async_engine(dsn, echo=settings.echo_var, future=True)
+engine = create_async_engine(dsn, echo=settings.debug, future=True)
 async_session = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )

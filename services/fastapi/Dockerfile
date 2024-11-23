@@ -10,4 +10,6 @@ RUN pip3.11 install -r requirements.txt
 
 COPY . .
 
+EXPOSE 8000
+
 CMD ["python3", "main.py"]

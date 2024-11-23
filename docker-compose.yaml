@@ -2,6 +2,8 @@ services:
     admin:
       container_name: "admin"
       build: ./services/admin
+      env_file:
+        - .env
       depends_on:
         admin_db:
           condition: service_healthy
@@ -27,15 +29,30 @@ services:
     auth:
       container_name: "auth"
       build: ./services/auth
+      env_file:
+        - .env
       depends_on:
         auth_db:
           condition: service_healthy
         redis:
           condition: service_healthy
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
 
     auth_db:
       container_name: "auth_db"
       build: ./services/auth_db
+      environment:
+          POSTGRES_DB: ${AUTH_POSTGRES_DB}
+          POSTGRES_USER: ${AUTH_POSTGRES_USER}
+          POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+          POSTGRES_HOST: ${AUTH_POSTGRES_HOST}
+          POSTGRES_PORT: ${AUTH_POSTGRES_PORT}
+          POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+
       volumes:
         - ./services/auth_db/data:/var/lib/postgresql/data
         - ./services/auth_db/docker-entrypoint-initdb:/docker-entrypoint-initdb.d/:ro
@@ -47,9 +64,16 @@ services:
     fastapi:
       container_name: "fastapi"
       build: ./services/fastapi
+      env_file:
+        - .env
       depends_on:
         - elasticsearch
         - redis
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
 
     elasticsearch:
       container_name: "elasticsearch"
@@ -67,6 +91,8 @@ services:
       ports: 
         - ${ETL_ELASTIC_PORTS}
       build: ./services/etl_loader
+      env_file:
+        - .env
       depends_on: 
         elasticsearch:
           condition: service_healthy

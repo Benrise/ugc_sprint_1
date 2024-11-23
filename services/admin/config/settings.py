@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 from split_settings.tools import include
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,7 +8,7 @@ SECRET_KEY = os.environ.get('ADMIN_SECRET_KEY')
 
 DEBUG = os.environ.get('ADMIN_DEBUG', False) == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ADMIN_ALLOWED_HOSTS').split(', ')
+ALLOWED_HOSTS = os.environ.get('ADMIN_ALLOWED_HOSTS').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -123,7 +121,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 if DEBUG:
     import socket
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[:-1] + '5' for ip in ips] + os.environ.get('ADMIN_INTERNAL_IPS').split(', ')
+    INTERNAL_IPS = [ip[:-1] + '5' for ip in ips] + os.environ.get('ADMIN_INTERNAL_IPS').split(',')
     MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
     INSTALLED_APPS += ['debug_toolbar']
     INSTALLED_APPS += ['django_extensions']

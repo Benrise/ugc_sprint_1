@@ -9,4 +9,6 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
+EXPOSE 8001
+
 CMD ["python3", "main.py"]

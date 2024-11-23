@@ -1,9 +1,8 @@
 import os
 from logging import config as logging_config
 
-from dotenv import load_dotenv
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 from core.logger import LOGGING
 
@@ -34,58 +33,39 @@ logging_config.dictConfig(LOGGING)
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="AUTH_",
-        env_file='.env',
-        env_file_encoding='utf-8',
-        extra='ignore'
-    )
-    project_name: str = Field(..., alias='PROJECT_NAME')
-    redis_host: str = Field('redis', alias='REDIS_HOST')
-    redis_port: int = Field(6379, alias='REDIS_PORT')
-    redis_version: str = Field(None, alias='REDIS_VERSION')
-    echo_var: bool = Field(..., alias='ECHO_VAR')
-    debug: bool = Field(..., alias='DEBUG')
-    secret_key_session: str = Field(..., alias='SECRET_KEY_SESSION')
-    enable_tracing: bool = Field(..., alias='ENABLE_TRACING')
-    tracer_host: str = Field(..., alias='TRACER_HOST')
-    tracer_port: int = Field(..., alias='TRACER_PORT')
+    project_name: str = Field(..., alias='AUTH_PROJECT_NAME')
+    service_port: int = Field(8001, alias='AUTH_SERVICE_PORT')
+    redis_host: str = Field('redis', alias='AUTH_REDIS_HOST')
+    redis_port: int = Field(6379, alias='AUTH_REDIS_PORT')
+    debug: bool = Field(True, alias='AUTH_DEBUG')
+    secret_key_session: str = Field(..., alias='AUTH_SECRET_KEY_SESSION')
+    enable_tracing: bool = Field(..., alias='AUTH_ENABLE_TRACING')
+    tracer_host: str = Field(..., alias='AUTH_TRACER_HOST')
+    tracer_port: int = Field(..., alias='AUTH_TRACER_PORT')
 
 
 settings = Settings()
 
 
 class OAuthYandexSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="AUTH_",
-        env_file='.env',
-        env_file_encoding='utf-8',
-        extra='ignore'
-    )
-    client_id: str = Field(..., alias='YANDEX_CLIENT_ID')
-    client_secret: str = Field(..., alias='YANDEX_CLIENT_SECRET')
+    client_id: str = Field(..., alias='AUTH_YANDEX_CLIENT_ID')
+    client_secret: str = Field(..., alias='AUTH_YANDEX_CLIENT_SECRET')
     scope: str = 'login:email'
     api_base_url: str = 'https://login.yandex.ru/'
     authorize_url: str = 'https://oauth.yandex.ru/authorize'
     access_token_url: str = 'https://oauth.yandex.ru/token'
-    redirect_uri: str = Field(..., alias='YANDEX_REDIRECT_URI')
+    redirect_uri: str = Field(..., alias='AUTH_YANDEX_REDIRECT_URI')
 
 
 oauth_yandex = OAuthYandexSettings()
 
 
 class PostgresSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix='AUTH_POSTGRES_',
-        env_file='.env',
-        env_file_encoding='utf-8',
-        extra='ignore'
-    )
-    db: str = Field(..., alias='DB')
-    user: str = Field(..., alias='USER')
-    password: str = Field(..., alias='PASSWORD')
-    host: str = Field(..., alias='HOST')
-    port: int = Field(..., alias='PORT')
+    db: str = Field(..., alias='AUTH_POSTGRES_DB')
+    user: str = Field(..., alias='AUTH_POSTGRES_USER')
+    password: str = Field(..., alias='AUTH_POSTGRES_PASSWORD')
+    host: str = Field(..., alias='AUTH_POSTGRES_HOST')
+    port: int = Field(..., alias='AUTH_POSTGRES_PORT')
 
 
 pg = PostgresSettings()

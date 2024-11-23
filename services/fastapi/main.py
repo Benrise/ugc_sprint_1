@@ -1,5 +1,6 @@
 import logging
 import uvicorn
+import datetime
 
 from contextlib import asynccontextmanager
 
@@ -41,6 +42,14 @@ app = FastAPI(
     dependencies=[Depends(RateLimiter(times=5, seconds=10))],
 )
 
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.datetime.now().isoformat(),
+    }
+
 app.include_router(films.router, prefix='/movies/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/movies/api/v1/genres', tags=['genres'])
 app.include_router(persons.router, prefix='/movies/api/v1/persons', tags=['persons'])
@@ -49,7 +58,7 @@ if __name__ == '__main__':
     uvicorn.run(
         'main:app',
         host='0.0.0.0',
-        port=8000,
+        port=settings.service_port,
         log_config=LOGGING,
         log_level=logging.DEBUG,
     )

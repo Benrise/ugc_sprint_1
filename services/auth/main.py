@@ -1,7 +1,8 @@
 import logging
-from contextlib import asynccontextmanager
-
+import datetime
 import uvicorn
+
+from contextlib import asynccontextmanager
 from async_fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import JSONResponse, ORJSONResponse
@@ -46,6 +47,14 @@ app = FastAPI(
     dependencies=[Depends(RateLimiter(times=5, seconds=10))],
 )
 
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.datetime.now().isoformat(),
+    }
+
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key_session)
 
 
@@ -62,6 +71,7 @@ def configure_tracer() -> None:
         )
     )
     trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
 
 @app.middleware('http')
 async def before_request(request: Request, call_next):
@@ -86,7 +96,7 @@ if __name__ == '__main__':
     uvicorn.run(
         'main:app',
         host='0.0.0.0',
-        port=8000,
+        port=settings.service_port,
         log_config=LOGGING,
         log_level=logging.DEBUG,
         reload=True,
