@@ -34,6 +34,20 @@ async def check_if_token_in_denylist(decrypted_token):
     return entry and entry == True
 
 
+@router.get('/', status_code=HTTPStatus.OK)
+@roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
+async def get_users(
+    *,
+    _: AuthRequest,
+    user_service: UserService = Depends(get_user_service),
+    db: AsyncSession = Depends(get_session),
+    authorize: AuthJWT = Depends(auth_dep)
+) -> list[UserInDBRole]:
+    await authorize.jwt_required()
+
+    return await user_service.get_all_users(db)
+
+
 @router.post('/signup', response_model=UserInDB, status_code=HTTPStatus.CREATED)
 async def create_user(
     user_create: UserCreate,
@@ -158,17 +172,3 @@ async def login_history(
         id=i.id, user_id=i.user_id, logged_at=i.logged_at
     ) for i in history]
     return login_history
-
-
-@router.get('/users', status_code=HTTPStatus.OK)
-@roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
-async def get_users(
-    *,
-    _: AuthRequest,
-    user_service: UserService = Depends(get_user_service),
-    db: AsyncSession = Depends(get_session),
-    authorize: AuthJWT = Depends(auth_dep)
-) -> list[UserInDBRole]:
-    await authorize.jwt_required()
-
-    return await user_service.get_all_users(db)

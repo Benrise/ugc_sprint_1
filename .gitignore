@@ -42,3 +42,6 @@ services/redis/data
 
 # elastic data
 services/es/data
+
+# logs data
+logs/

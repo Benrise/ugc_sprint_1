@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-WORKDIR /opt/auth
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
 
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt

@@ -2,13 +2,11 @@ from functools import wraps
 from http import HTTPStatus
 
 from async_fastapi_jwt_auth import AuthJWT
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
-from pydantic import BaseModel, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.postgres import get_session
-from models.entity import Role
 from schemas.auth_request import AuthRequest
 from schemas.user import UserInDBRole, UserRoles
 from services.user import UserService, get_user_service

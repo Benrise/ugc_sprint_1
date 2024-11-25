@@ -6,7 +6,7 @@ from datetime import datetime
 logs_dir = "./logs"
 os.makedirs(logs_dir, exist_ok=True)
 
-app_name = 'etl_loader'
+app_name = 'api'
 timestamp = datetime.now().strftime("%d-%m-%Y")
 main_log_file = os.path.join(logs_dir, f"{timestamp}_info.log")
 error_log_file = os.path.join(logs_dir, f"{timestamp}_errors.log")

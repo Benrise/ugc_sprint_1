@@ -61,4 +61,5 @@ if __name__ == '__main__':
         port=settings.service_port,
         log_config=LOGGING,
         log_level=logging.DEBUG,
+        reload=True,
     )

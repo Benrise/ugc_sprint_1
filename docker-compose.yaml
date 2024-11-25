@@ -8,9 +8,9 @@ services:
         admin_db:
           condition: service_healthy
       volumes:
-        - ./services/admin/static:/opt/app/static
+        - ./services/admin/static:/app/static
       healthcheck:
-        test: ["CMD-SHELL", "[ -e /opt/app/static ]"]
+        test: ["CMD-SHELL", "[ -e /app/static ]"]
         interval: 5s
         timeout: 10s
         retries: 15    
@@ -29,6 +29,9 @@ services:
     auth:
       container_name: "auth"
       build: ./services/auth
+      volumes:
+        - ./services/auth:/app:ro
+        - ./services/auth/logs:/app/logs
       env_file:
         - .env
       depends_on:
@@ -64,6 +67,9 @@ services:
     fastapi:
       container_name: "fastapi"
       build: ./services/fastapi
+      volumes:
+        - ./services/fastapi:/app:ro
+        - ./services/fastapi/logs:/app/logs
       env_file:
         - .env
       depends_on:
@@ -91,6 +97,9 @@ services:
       ports: 
         - ${ETL_ELASTIC_PORTS}
       build: ./services/etl_loader
+      volumes:
+        - ./services/etl_loader:/app:ro
+        - ./services/etl_loader/logs:/app/logs
       env_file:
         - .env
       depends_on: 
