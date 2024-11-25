@@ -6,11 +6,9 @@ from typing import List
 from elasticsearch import Elasticsearch
 
 from utils.logger import logger
+from utils.wait_for_service import wait_for_service
 
 from process.elasticloader import ElasticLoader
-from dotenv import load_dotenv
-
-load_dotenv(override=False)
 
 ELASTIC_PROTOCOL = os.getenv('ETL_ELASTIC_PROTOCOL', 'http')
 ELASTIC_HOST = os.getenv('ETL_ELASTIC_HOST', '127.0.0.1')
@@ -83,6 +81,8 @@ if __name__ == '__main__':
         ('persons', 'indices/personIndex.json'),
         ('genres', 'indices/genreIndex.json')
     ]
+
+    wait_for_service(f'{ELASTIC_PROTOCOL}://{ELASTIC_HOST}:{ELASTIC_PORT}')
 
     for idx in indices:
         create_index = es.create_index(*idx)

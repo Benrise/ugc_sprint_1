@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -9,4 +9,4 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-CMD ["python3", "load_data.py"]
+CMD ["python3", "main.py"]

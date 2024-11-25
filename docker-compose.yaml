@@ -4,6 +4,8 @@ services:
       build: ./services/admin
       env_file:
         - .env
+      environment:
+        DJANGO_SUPERUSER_PASSWORD: ${ADMIN_DJANGO_SUPERUSER_PASSWORD}
       depends_on:
         admin_db:
           condition: service_healthy
@@ -13,15 +15,23 @@ services:
         test: ["CMD-SHELL", "[ -e /app/static ]"]
         interval: 5s
         timeout: 10s
-        retries: 15    
+        retries: 15 
 
     admin_db:
-      container_name: "db"
+      container_name: "admin_db"
       build: ./services/admin_db
+      environment:
+          POSTGRES_DB: ${ADMIN_DJANGO_DB_NAME}
+          POSTGRES_USER: ${ADMIN_DJANGO_DB_USER}
+          POSTGRES_PASSWORD: ${ADMIN_DJANGO_DB_PASSWORD}
+          POSTGRES_HOST: ${ADMIN_DJANGO_DB_HOST}
+          POSTGRES_PORT: ${ADMIN_DJANGO_DB_PORT}
+      env_file:
+        - .env
       volumes:
         - ./services/admin_db/data:/var/lib/postgresql/data
       healthcheck:
-          test: ["CMD-SHELL", "pg_isready -d admin_db -U admin"] 
+          test: ["CMD-SHELL", "pg_isready -d admin_database -U postgres"] 
           interval: 2s
           timeout: 10s
           retries: 30
@@ -49,12 +59,11 @@ services:
       container_name: "auth_db"
       build: ./services/auth_db
       environment:
-          POSTGRES_DB: ${AUTH_POSTGRES_DB}
+          POSTGRES_DB: ${AUTH_POSTGRES_DB_NAME}
           POSTGRES_USER: ${AUTH_POSTGRES_USER}
           POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
           POSTGRES_HOST: ${AUTH_POSTGRES_HOST}
           POSTGRES_PORT: ${AUTH_POSTGRES_PORT}
-          POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
 
       volumes:
         - ./services/auth_db/data:/var/lib/postgresql/data
@@ -89,8 +98,8 @@ services:
         - ./services/es/data:/usr/share/elasticsearch/data
       healthcheck:
         test: ["CMD-SHELL", "curl -s http://localhost:9200/_cat/health?h=status | grep -q green"]
-        retries: 300
-        interval: 2s
+        retries: 90
+        interval: 3s
 
     etl_loader:
       container_name: "etl_loader"
@@ -104,8 +113,6 @@ services:
         - .env
       depends_on: 
         elasticsearch:
-          condition: service_healthy
-        fastapi:
           condition: service_healthy
 
     jaeger:

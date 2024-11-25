@@ -1,3 +1,1 @@
-FROM postgres:15
-
-CMD ["postgres"]
+FROM bitnami/postgresql:16

@@ -61,7 +61,7 @@ oauth_yandex = OAuthYandexSettings()
 
 
 class PostgresSettings(BaseSettings):
-    db: str = Field(..., alias='AUTH_POSTGRES_DB')
+    db: str = Field(..., alias='AUTH_POSTGRES_DB_NAME')
     user: str = Field(..., alias='AUTH_POSTGRES_USER')
     password: str = Field(..., alias='AUTH_POSTGRES_PASSWORD')
     host: str = Field(..., alias='AUTH_POSTGRES_HOST')
