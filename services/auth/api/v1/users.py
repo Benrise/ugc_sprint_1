@@ -15,7 +15,12 @@ from schemas.user import (ChangePassword, ChangeUsername, JTWSettings,
 from services.oauth import OAuthService, get_oauth_service
 from services.user import UserService, get_user_service
 
-from dependencies.user import AuthRequest, UserInDBRole, roles_required
+from dependencies.user import (
+    AuthRequest,
+    UserInDBRole,
+    roles_required,
+    JWTBearer
+)
 
 router = APIRouter()
 auth_dep = AuthJWTBearer()
@@ -167,8 +172,36 @@ async def login_history(
     await authorize.jwt_required()
 
     user = await user_service.get_user(db, authorize)
-    history = await user_service.get_login_history(user, pagination.page, pagination.size, db)
+    history = await user_service.get_login_history(
+        user,
+        pagination.page,
+        pagination.size, db
+    )
     login_history = [UserHistoryInDB(
         id=i.id, user_id=i.user_id, logged_at=i.logged_at
     ) for i in history]
     return login_history
+
+
+@router.post('/validate-token', status_code=HTTPStatus.OK)
+async def validate_token(
+    authorize: AuthJWT = Depends(auth_dep),
+    user_service: UserService = Depends(get_user_service),
+    db: AsyncSession = Depends(get_session)
+) -> dict:
+    try:
+        await authorize.jwt_required()
+        user = await user_service.get_user(db, authorize)
+
+        return {
+            "message": "Token is valid",
+            "user": {
+                "id": user.id,
+                "username": user.login,
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail=f"Invalid or expired token: {e}"
+        )
