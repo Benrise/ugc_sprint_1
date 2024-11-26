@@ -15,12 +15,10 @@ from schemas.user import (ChangePassword, ChangeUsername, JTWSettings,
 from services.oauth import OAuthService, get_oauth_service
 from services.user import UserService, get_user_service
 
-from dependencies.user import (
-    AuthRequest,
-    UserInDBRole,
-    roles_required,
-    JWTBearer
-)
+from dependencies.user import AuthRequest
+from dependencies.role import roles_required
+
+from schemas.user import UserInDBRole
 
 router = APIRouter()
 auth_dep = AuthJWTBearer()
