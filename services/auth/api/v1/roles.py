@@ -11,7 +11,7 @@ from schemas.user import UserRoles
 from services.role import RoleService, get_role_service
 from services.user import UserService, get_user_service
 
-from .user_auth import AuthRequest, roles_required
+from dependencies.user import AuthRequest, roles_required
 
 router = APIRouter()
 auth_dep = AuthJWTBearer()

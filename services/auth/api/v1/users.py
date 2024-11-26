@@ -15,7 +15,7 @@ from schemas.user import (ChangePassword, ChangeUsername, JTWSettings,
 from services.oauth import OAuthService, get_oauth_service
 from services.user import UserService, get_user_service
 
-from .user_auth import AuthRequest, UserInDBRole, roles_required
+from dependencies.user import AuthRequest, UserInDBRole, roles_required
 
 router = APIRouter()
 auth_dep = AuthJWTBearer()
@@ -31,7 +31,7 @@ def get_config():
 async def check_if_token_in_denylist(decrypted_token):
     jti = decrypted_token["jti"]
     entry = await redis.get(jti)
-    return entry and entry == True
+    return entry
 
 
 @router.get('/', status_code=HTTPStatus.OK)
