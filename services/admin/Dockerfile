@@ -1,8 +1,8 @@
-FROM python:3.10
+FROM python:3.11
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
 COPY uwsgi/uwsgi.ini uwsgi.ini
 
 RUN pip install --upgrade pip \
