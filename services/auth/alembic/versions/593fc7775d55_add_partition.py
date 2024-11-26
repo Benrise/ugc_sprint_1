@@ -27,7 +27,7 @@ def upgrade() -> None:
             id uuid NOT NULL,
             user_id uuid NOT NULL,
             logged_at timestamp without time zone NOT NULL,
-            PRIMARY KEY (id),
+            PRIMARY KEY (id, logged_at),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) PARTITION BY RANGE (logged_at);
     """)
@@ -40,7 +40,13 @@ def upgrade() -> None:
     op.execute("ALTER TABLE login_history_temporary RENAME TO login_history;")
 
     op.execute("""
-        SELECT partman.create_parent('public.login_history', 'logged_at', 'partman', 'monthly');
+        SELECT partman.create_parent
+        (
+            'public.login_history',
+            'logged_at',
+            'native',
+            'monthly'
+        );
     """)
 
     op.execute("DROP TABLE IF EXISTS history_history_old;")
@@ -55,7 +61,7 @@ def downgrade() -> None:
             id uuid NOT NULL,
             user_id uuid NOT NULL,
             logged_at timestamp without time zone NOT NULL,
-            PRIMARY KEY (id),
+            PRIMARY KEY (id, logged_at),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     """)

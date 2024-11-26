@@ -38,7 +38,7 @@ async def check_if_token_in_denylist(decrypted_token):
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def get_users(
     *,
-    _: AuthRequest,
+    request: AuthRequest,
     user_service: UserService = Depends(get_user_service),
     db: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(auth_dep)

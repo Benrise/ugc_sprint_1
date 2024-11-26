@@ -35,5 +35,5 @@ def create_superuser(login: str, password: str):
     typer.echo(f'Superuser {login} created successfully')
 
 
-if __name__== '__main__':
+if __name__ == '__main__':
     typer.run(create_superuser)

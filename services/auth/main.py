@@ -29,9 +29,6 @@ from db import redis
 async def lifespan(app: FastAPI):
     redis.redis = Redis(host=settings.redis_host, port=settings.redis_port, db=0, decode_responses=True)
     await FastAPILimiter.init(redis.redis)
-    if settings.debug:
-        from db.postgres import create_database
-        await create_database()
     if settings.enable_tracing:
         configure_tracer()
     yield

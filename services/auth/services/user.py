@@ -37,17 +37,17 @@ class UserService:
         user = User(**user_dto)
         new_user = await self._add_to_db(user, db)
         return new_user
- 
+
     async def user_validation(self, credentials: UsernameLogin, db: AsyncSession) -> User | None:
         query = await db.execute(select(User).where(User.login == credentials.username))
         user = query.scalars().first()
         return user
-    
+
     async def create_user_tokens(self, username: str, authorize: AuthJWT) -> TokensResponse:
         access_token = await authorize.create_access_token(subject=username)
         refresh_token = await authorize.create_refresh_token(subject=username)
         return TokensResponse(access_token=access_token, refresh_token=refresh_token)
-    
+
     async def revoke_tokens(self, tokens: TokensResponse, authorize: AuthJWT, jtw_settings: JTWSettings):
         access_jti = (await authorize.get_raw_jwt(encoded_token=tokens.access_token))['jti']
         refresh_jti = (await authorize.get_raw_jwt(encoded_token=tokens.refresh_token))['jti']
@@ -63,12 +63,12 @@ class UserService:
         current_user = (await authorize.get_raw_jwt())['sub']
         db_user = await db.execute(select(User).where(User.login == current_user))
         return db_user.scalars().first()
-    
+
     async def change_login(self, login: ChangeUsername, user: User, db: AsyncSession) -> User:
         user.login = login.new_username
         user = await self._add_to_db(user, db)
         return user
-    
+
     async def change_password(self, login: ChangePassword, user: User, db: AsyncSession):
         user.password = generate_password_hash(login.new_password)
         user = await self._add_to_db(user, db)

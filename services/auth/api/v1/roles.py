@@ -20,7 +20,7 @@ auth_dep = AuthJWTBearer()
 @router.get('/', response_model=list[RoleInDB], status_code=HTTPStatus.OK)
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def get_roles(
-    _: AuthRequest,
+    request: AuthRequest,
     role_service: RoleService = Depends(get_role_service),
     db: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(auth_dep)
@@ -33,7 +33,7 @@ async def get_roles(
 @router.post('/create', response_model=RoleInDB, status_code=HTTPStatus.CREATED)
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def create_role(
-    _: AuthRequest,
+    request: AuthRequest,
     role_create: RoleCreate,
     role_service: RoleService = Depends(get_role_service), 
     db: AsyncSession = Depends(get_session),
@@ -46,7 +46,7 @@ async def create_role(
 @router.post('/asign', status_code=HTTPStatus.OK)
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def asign_role(
-    _: AuthRequest,
+    request: AuthRequest,
     data: AsignRole,
     role_service: RoleService = Depends(get_role_service),
     user_service: UserService = Depends(get_user_service), 
@@ -66,7 +66,7 @@ async def asign_role(
 @router.patch('/revoke', status_code=HTTPStatus.OK)
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def revoke_role(
-    _: AuthRequest,
+    request: AuthRequest,
     role_service: RoleService = Depends(get_role_service),
     user_service: UserService = Depends(get_user_service), 
     db: AsyncSession = Depends(get_session),
@@ -84,7 +84,7 @@ async def revoke_role(
 @router.delete('/delete', status_code=HTTPStatus.OK)
 @roles_required(roles_list=[UserRoles().admin, UserRoles().superuser])
 async def delete_role(
-    _: AuthRequest,
+    request: AuthRequest,
     data: RoleDelete,
     role_service: RoleService = Depends(get_role_service),
     db: AsyncSession = Depends(get_session),
