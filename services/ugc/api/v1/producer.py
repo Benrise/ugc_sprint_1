@@ -12,6 +12,8 @@ from fastapi import (
 from services.user import UserService
 from dependencies.user import get_user_service
 from utils.query_params import extract_query_params
+from dependencies.kafka import get_kafka_service
+from brokers.kafka import KafkaAdapter
 
 
 router = APIRouter()
@@ -22,7 +24,8 @@ async def send_to_broker(
             event_type: str,
             request: Request,
             event_params: Optional[str] = None,
-            user_service: UserService = Depends(get_user_service)
+            user_service: UserService = Depends(get_user_service),
+            kafka_service: KafkaAdapter = Depends(get_kafka_service)
         ):
     token = request.cookies.get("access_token_cookie")
     if not token:
@@ -36,12 +39,14 @@ async def send_to_broker(
 
     user_id = await user_service.get_user_id(token)
 
-    try:
-        return {
-            'detail': 'Event successfully sent to broker',
-            'data': data,
-            'user_id': user_id,
-            'event_type': event_type
-        }
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    topic = f"{event_type}-events"
+
+    await kafka_service.produce(topic=topic, key=event_type, value=str(data))
+    return {
+        'detail': 'Event successfully sent to broker',
+        'data': data,
+        'user_id': user_id,
+        'event_type': event_type,
+        'topic': topic
+    }
+
