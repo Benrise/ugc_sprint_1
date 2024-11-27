@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import Depends, Request
 from fastapi.security import HTTPBearer
 from redis.asyncio import Redis
@@ -16,15 +17,18 @@ class JWTService:
     def __init__(self, cache: Redis) -> None:
         self.cache = cache
 
-    async def create_user_tokens(self, username: str, authorize: AuthJWT) -> TokensResponse:
+    async def create_user_tokens(self, user_id: UUID, authorize: AuthJWT, ) -> TokensResponse:
         access_token = await authorize.create_access_token(
-            subject=username,
-            expires_time=jwt_settings.access_expires
+            subject=str(user_id),
+            expires_time=jwt_settings.access_expires,
+            user_claims={"user_id": str(user_id)}
         )
         refresh_token = await authorize.create_refresh_token(
-            subject=username,
-            expires_time=jwt_settings.refresh_expires
+            subject=str(user_id),
+            expires_time=jwt_settings.refresh_expires,
+            user_claims={"user_id": str(user_id)}
         )
+
         return TokensResponse(access_token=access_token, refresh_token=refresh_token)
 
     async def revoke_tokens(self, tokens: TokensResponse, authorize: AuthJWT):
@@ -34,16 +38,19 @@ class JWTService:
         await self.cache.setex(refresh_jti, jwt_settings.refresh_expires, "true")
 
     async def refresh_token(self, authorize: AuthJWT) -> TokensResponse:
-        current_user = await authorize.get_jwt_subject()
+        current_user_id = await authorize.get_jwt_subject()
+
         new_access_token = await authorize.create_access_token(
-            subject=current_user,
-            expires_time=jwt_settings.access_expires
+            subject=current_user_id,
+            expires_time=jwt_settings.access_expires,
+            user_claims={"user_id": current_user_id}
         )
         new_refresh_token = await authorize.create_refresh_token(
-            subject=current_user,
-            expires_time=jwt_settings.refresh_expires
+            subject=current_user_id,
+            expires_time=jwt_settings.refresh_expires,
+            user_claims={"user_id": current_user_id}
         )
-    
+
         return TokensResponse(
             access_token=new_access_token,
             refresh_token=new_refresh_token
@@ -61,8 +68,8 @@ class JWTBearer(HTTPBearer):
             db: AsyncSession = Depends(get_session)) -> UserInDBRole | None:
         authorize = AuthJWT(req=request)
         await authorize.jwt_optional()
-        user_id = await authorize.get_jwt_subject()
-        if not user_id:
+        current_user_id = await authorize.get_jwt_subject()
+        if not current_user_id:
             return None
         user = await user_service.get_user(db, authorize)
         return UserInDBRole.from_orm(user)

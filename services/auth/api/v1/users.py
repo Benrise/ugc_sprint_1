@@ -103,7 +103,7 @@ async def login(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Incorrect password'
         )
-    tokens = await jwt_service.create_user_tokens(credentials.username, authorize)
+    tokens = await jwt_service.create_user_tokens(user.id, authorize)
     await authorize.set_access_cookies(tokens.access_token)
     await authorize.set_refresh_cookies(tokens.refresh_token)
     await user_service.add_login_to_history(user, db)

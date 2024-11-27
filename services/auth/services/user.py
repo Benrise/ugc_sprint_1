@@ -46,8 +46,8 @@ class UserService:
         return user
 
     async def get_user(self, db: AsyncSession, authorize: AuthJWT) -> User | None:
-        current_user = (await authorize.get_raw_jwt())['sub']
-        db_user = await db.execute(select(User).where(User.login == current_user))
+        current_user_id = (await authorize.get_raw_jwt())['sub']
+        db_user = await db.execute(select(User).where(User.id == current_user_id))
         return db_user.scalars().first()
 
     async def get_user_by_id(self, user_id: UUID, db: AsyncSession) -> User | None:
