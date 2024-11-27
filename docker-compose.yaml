@@ -73,12 +73,12 @@ services:
           interval: 2s
           retries: 100
 
-    fastapi:
-      container_name: "fastapi"
-      build: ./services/fastapi
+    content:
+      container_name: "content"
+      build: ./services/content
       volumes:
-        - ./services/fastapi:/app:ro
-        - ./services/fastapi/logs:/app/logs
+        - ./services/content:/app:ro
+        - ./services/content/logs:/app/logs
       env_file:
         - .env
       depends_on:
@@ -101,14 +101,14 @@ services:
         retries: 90
         interval: 3s
 
-    etl_loader:
-      container_name: "etl_loader"
+    etl_content:
+      container_name: "etl_content"
       ports: 
         - ${ETL_ELASTIC_PORTS}
-      build: ./services/etl_loader
+      build: ./services/etl_content
       volumes:
-        - ./services/etl_loader:/app:ro
-        - ./services/etl_loader/logs:/app/logs
+        - ./services/etl_content:/app:ro
+        - ./services/etl_content/logs:/app/logs
       env_file:
         - .env
       depends_on: 
