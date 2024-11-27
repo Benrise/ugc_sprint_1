@@ -184,7 +184,7 @@ async def login_history(
     return login_history
 
 
-@router.post('/validate-token', status_code=HTTPStatus.OK)
+@router.get('/verify', status_code=HTTPStatus.OK)
 async def validate_token(
     authorize: AuthJWT = Depends(auth_dep),
     user_service: UserService = Depends(get_user_service),
