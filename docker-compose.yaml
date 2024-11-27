@@ -148,3 +148,70 @@ services:
         - ./services/admin/static:/static/:ro
       ports:
         - ${NGINX_PORTS}
+
+    kafka-0:
+      build: ./services/kafka
+      container_name: kafka-0
+      environment:
+          KAFKA_CFG_NODE_ID: ${KAFKA_0_CFG_NODE_ID}
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: ${KAFKA_0_CFG_CONTROLLER_QUORUM_VOTERS}
+          KAFKA_CFG_LISTENERS: ${KAFKA_0_CFG_LISTENERS}
+          KAFKA_CFG_ADVERTISED_LISTENERS: ${KAFKA_0_CFG_ADVERTISED_LISTENERS}
+      env_file:
+        - .env
+      volumes:
+        - kafka-0_data:/bitnami/kafka
+      healthcheck:
+        test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
+        interval: 1s
+        timeout: 60s
+        retries: 60
+
+    kafka-1:
+      build: ./services/kafka
+      container_name: kafka-1
+      environment:
+          KAFKA_CFG_NODE_ID: ${KAFKA_1_CFG_NODE_ID}
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: ${KAFKA_1_CFG_CONTROLLER_QUORUM_VOTERS}
+          KAFKA_CFG_LISTENERS: ${KAFKA_1_CFG_LISTENERS}
+          KAFKA_CFG_ADVERTISED_LISTENERS: ${KAFKA_1_CFG_ADVERTISED_LISTENERS}
+      env_file:
+        - .env
+      volumes:
+        - kafka-1_data:/bitnami/kafka
+      healthcheck:
+        test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
+        interval: 1s
+        timeout: 60s
+        retries: 60
+    
+    kafka-2:
+      build: ./services/kafka
+      container_name: kafka-2
+      environment:
+          KAFKA_CFG_NODE_ID: ${KAFKA_2_CFG_NODE_ID}
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: ${KAFKA_2_CFG_CONTROLLER_QUORUM_VOTERS}
+          KAFKA_CFG_LISTENERS: ${KAFKA_2_CFG_LISTENERS}
+          KAFKA_CFG_ADVERTISED_LISTENERS: ${KAFKA_2_CFG_ADVERTISED_LISTENERS}
+      env_file:
+        - .env
+      volumes:
+        - kafka-2_data:/bitnami/kafka
+      healthcheck:
+        test: kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
+        interval: 1s
+        timeout: 60s
+        retries: 60
+
+    kafka-ui:
+      image: provectuslabs/kafka-ui:v0.7.2
+      container_name: kafka-ui
+      env_file:
+        - .env
+      ports:
+        - ${KAFKA_UI_PORTS}
+
+volumes:
+  kafka-0_data:
+  kafka-1_data:
+  kafka-2_data:
