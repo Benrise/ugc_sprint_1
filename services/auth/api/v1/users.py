@@ -9,25 +9,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.postgres import get_session
 from db.redis import redis
 from models.abstract import PaginatedParams
-from schemas.user import (ChangePassword, ChangeUsername, JTWSettings,
+from core.config import jwt_settings
+from schemas.user import (ChangePassword, ChangeUsername,
                           TokensResponse, UserCreate, UserHistoryInDB,
                           UserInDB, UsernameLogin, UserRoles)
-from services.oauth import OAuthService, get_oauth_service
-from services.user import UserService, get_user_service
+from schemas.auth_request import AuthRequest
+from services.oauth import OAuthService
+from services.user import UserService
+from services.jwt import JWTService
 
-from dependencies.user import AuthRequest
+from dependencies.user import get_user_service
 from dependencies.role import roles_required
+from dependencies.jwt import get_jwt_service
+from dependencies.oauth import get_oauth_service
 
 from schemas.user import UserInDBRole
 
 router = APIRouter()
 auth_dep = AuthJWTBearer()
-jtw_settings = JTWSettings()
 
 
 @AuthJWT.load_config
 def get_config():
-    return jtw_settings
+    return jwt_settings
 
 
 @AuthJWT.token_in_denylist_loader
@@ -86,6 +90,7 @@ async def auth_callback(request: Request,
 async def login(
     credentials: UsernameLogin,
     user_service: UserService = Depends(get_user_service),
+    jwt_service: JWTService = Depends(get_jwt_service),
     db: AsyncSession = Depends(get_session),
     authorize: AuthJWT = Depends(auth_dep)
 ) -> TokensResponse | None:
@@ -98,7 +103,7 @@ async def login(
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Incorrect password'
         )
-    tokens = await user_service.create_user_tokens(credentials.username, authorize)
+    tokens = await jwt_service.create_user_tokens(credentials.username, authorize)
     await authorize.set_access_cookies(tokens.access_token)
     await authorize.set_refresh_cookies(tokens.refresh_token)
     await user_service.add_login_to_history(user, db)
@@ -117,14 +122,12 @@ async def logout(
 
 @router.post('/refresh', status_code=HTTPStatus.OK)
 async def refresh(
-    authorize: AuthJWT = Depends(auth_dep)
-) -> dict:
+    authorize: AuthJWT = Depends(auth_dep),
+    jwt_service: JWTService = Depends(get_jwt_service)
+) -> TokensResponse:
     await authorize.jwt_refresh_token_required()
 
-    current_user = await authorize.get_jwt_subject()
-    new_access_token = await authorize.create_access_token(subject=current_user)
-    await authorize.set_access_cookies(new_access_token)
-    return {"access_token": new_access_token}
+    return await jwt_service.refresh_token(authorize)
 
 
 @router.patch('/change-username', status_code=HTTPStatus.OK)

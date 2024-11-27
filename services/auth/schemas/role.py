@@ -1,12 +1,13 @@
 from pydantic import BaseModel
+from uuid import UUID
 
 
 class RoleCreate(BaseModel):
     role: str
 
 
-class RoleDelete(RoleCreate):
-    pass
+class RoleDelete(BaseModel):
+    role_id: int
 
 
 class RoleInDB(BaseModel):
@@ -14,5 +15,6 @@ class RoleInDB(BaseModel):
     role: str
 
 
-class AsignRole(BaseModel):
-    role: str = 'user'
+class RoleAction(BaseModel):
+    role_id: int
+    user_id: UUID

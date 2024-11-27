@@ -3,7 +3,8 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.postgres import get_session
-from services.user import UserService, get_user_service
+from services.user import UserService
+from dependencies.user import get_user_service
 
 
 async def superuser_required(

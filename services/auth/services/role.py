@@ -1,16 +1,15 @@
-from functools import lru_cache
 from http import HTTPStatus
 
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from redis.asyncio import Redis
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.redis import get_redis
 from models.entity import Role, User
 from schemas.role import RoleCreate, RoleInDB
+from utils.enums import Roles
 
 
 class RoleService:
@@ -33,21 +32,23 @@ class RoleService:
         res = await self._add_to_db(user, db)
         return res
     
-    async def role_validation(self, role: str, db: AsyncSession) -> int | None:
-        query = await db.execute(select(Role).where(Role.role == role))
-        role = query.scalars().first()
+    async def role_validation(self, role_id: str, db: AsyncSession) -> int:
+        role = await db.execute(select(Role).where(Role.id == role_id))
+        role = role.scalars().first()
+        if not role:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
         return role.id
-    
-    async def add_role(self, user: User, role_id: int, db: AsyncSession):
+
+    async def add_role(self, user: User, role_id: int, db: AsyncSession) -> User:
         user.role_id = role_id
-        user = await self._add_to_db(user, db)
-        return user
-    
+        updated_user = await self._add_to_db(user, db)
+        return updated_user
+
     async def revoke_role(self, user: User, db: AsyncSession):
-        user.role_id = 1
-        user = await self._add_to_db(user, db)
-        return user
-    
+        user.role_id = int(Roles.guest.value)
+        updated_user = await self._add_to_db(user, db)
+        return updated_user
+
     async def delete_role(self, role_id: int, db: AsyncSession) -> None:
         query = delete(Role).where(Role.id == role_id)
         query.execution_options(synchronize_session="fetch")
@@ -58,11 +59,3 @@ class RoleService:
         query = await db.execute(select(Role))
         roles = query.scalars().all()
         return roles
-
-
-
-lru_cache()
-def get_role_service(
-        cache: Redis = Depends(get_redis)
-) -> RoleService:
-    return RoleService(cache)

@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
-from core.config import settings
 
 
 class UserCreate(BaseModel):
@@ -52,16 +51,6 @@ class UserHistoryInDB(BaseModel):
     id: UUID
     user_id: UUID
     logged_at: datetime
-
-
-class JTWSettings(BaseModel):
-    authjwt_secret_key: str = settings.secret_key_session
-    authjwt_denylist_enabled: bool = True
-    authjwt_denylist_token_checks: set = {"access", "refresh"}
-    authjwt_token_location: set = {"cookies"}
-    authjwt_cookie_csrf_protect: bool = False
-    access_expires: timedelta = timedelta(minutes=1)
-    refresh_expires: timedelta = timedelta(days=30)
 
 
 class TokensResponse(BaseModel):

@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from logging import config as logging_config
 
 from pydantic import Field
@@ -69,3 +70,24 @@ class PostgresSettings(BaseSettings):
 
 
 pg = PostgresSettings()
+
+
+class JWTSettings(BaseSettings):
+    authjwt_secret_key: str = Field(..., alias='AUTH_JWT_SECRET_KEY')
+    authjwt_denylist_enabled: bool = True
+    authjwt_denylist_token_checks: set = {"access", "refresh"}
+    authjwt_token_location: set = {"cookies"}
+    authjwt_cookie_csrf_protect: bool = False
+    access_expires_minutes: int = Field(..., alias='AUTH_JWT_ACCESS_TOKEN_EXPIRE_MINUTES')
+    refresh_expires_days: int = Field(..., alias='AUTH_JWT_REFRESH_TOKEN_EXPIRE_DAYS')
+
+    @property
+    def access_expires(self) -> timedelta:
+        return timedelta(minutes=self.access_expires_minutes)
+
+    @property
+    def refresh_expires(self) -> timedelta:
+        return timedelta(days=self.refresh_expires_days)
+
+
+jwt_settings = JWTSettings()

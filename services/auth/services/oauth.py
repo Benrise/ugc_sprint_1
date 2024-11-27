@@ -1,24 +1,21 @@
 import uuid
-from functools import lru_cache
+from fastapi import HTTPException, Request
 from http import HTTPStatus
 
 from async_fastapi_jwt_auth import AuthJWT
 from authlib.integrations.starlette_client import OAuth, OAuthError
-from fastapi import Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import OAuthYandexSettings
-from db.postgres import get_session
 from models.entity import OAuth2User, User
 from schemas.user import OAuthData
 from utils.abstract import OAuthProvider
 from utils.generators import generate_unique_login
 from utils.logger import logger
-
-from .user import UserService, get_user_service
+from services.user import UserService
 
 
 class YandexOAuthProvider(OAuthProvider):
@@ -118,9 +115,3 @@ class OAuthService:
                 raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="User creation failed")
 
         return await self.user_service.complete_oauth2_authentication(user, request, authorize, db)
-
-
-@lru_cache()
-def get_oauth_service(db_session: AsyncSession = Depends(get_session),
-                      user_service: UserService = Depends(get_user_service)) -> OAuthService:
-    return OAuthService(db_session=db_session, user_service=user_service)

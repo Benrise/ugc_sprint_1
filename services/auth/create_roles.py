@@ -18,7 +18,7 @@ session = session_maker()
 
 
 def create_superuser():
-    roles = ['user', 'admin', 'superuser']
+    roles = ['guest', 'admin', 'superuser']
     for role in roles:
         obj = Role(role=role)
         session.add(obj)

@@ -19,7 +19,7 @@ from redis.asyncio import Redis
 from starlette.middleware.sessions import SessionMiddleware
 
 from api.v1 import roles, users
-from dependencies.user import get_current_user_global
+from dependencies.jwt import get_current_user_global
 from core.config import settings
 from core.logger import LOGGING
 from db import redis
