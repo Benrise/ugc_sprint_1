@@ -152,6 +152,9 @@ services:
     ugc:
       build: './services/ugc'
       container_name: ugc
+      environment:
+        UGC_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
+        UGC_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
       volumes:
         - ./services/ugc:/app:ro
         - ./services/ugc/logs:/app/logs

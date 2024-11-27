@@ -5,6 +5,8 @@ import datetime
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+from api.v1 import producer
+
 from core.config import settings
 from core.logger import LOGGING
 
@@ -23,6 +25,7 @@ async def health_check():
         "timestamp": datetime.datetime.now().isoformat(),
     }
 
+app.include_router(producer.router, prefix='/ugc/api/v1/producer', tags=['producer'])
 
 if __name__ == '__main__':
     uvicorn.run(

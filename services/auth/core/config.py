@@ -76,6 +76,7 @@ class JWTSettings(BaseSettings):
     authjwt_secret_key: str = Field(..., alias='AUTH_JWT_SECRET_KEY')
     authjwt_denylist_enabled: bool = True
     authjwt_denylist_token_checks: set = {"access", "refresh"}
+    algorithm: str = Field('HS256', alias='AUTH_JWT_ALGORITHM')
     authjwt_token_location: set = {"cookies"}
     authjwt_cookie_csrf_protect: bool = False
     access_expires_minutes: int = Field(..., alias='AUTH_JWT_ACCESS_TOKEN_EXPIRE_MINUTES')
