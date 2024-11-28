@@ -27,7 +27,7 @@ from db import redis
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    redis.redis = Redis(host=settings.redis_host, port=settings.redis_port, db=0, decode_responses=True)
+    redis.redis = Redis(host=settings.redis_host, port=settings.redis_port)
     await FastAPILimiter.init(redis.redis)
     if settings.enable_tracing:
         configure_tracer()
@@ -97,5 +97,4 @@ if __name__ == '__main__':
         log_config=LOGGING,
         log_level=logging.DEBUG,
         reload=True,
-        lifespan=lifespan
     )
