@@ -35,9 +35,10 @@ async def send_to_broker(
     if not data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Data is required")
 
-    data["date_event"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     user_id = await user_service.get_user_id(token)
+
+    data["date_event"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data['user_id'] = user_id
 
     topic = f"{event_type}-events"
 
