@@ -19,7 +19,7 @@ from brokers.kafka import KafkaAdapter
 router = APIRouter()
 
 
-@router.get("/send_to_broker/{event_type}")
+@router.post("/send_to_broker/{event_type}")
 async def send_to_broker(
             event_type: str,
             request: Request,
@@ -49,4 +49,3 @@ async def send_to_broker(
         'event_type': event_type,
         'topic': topic
     }
-

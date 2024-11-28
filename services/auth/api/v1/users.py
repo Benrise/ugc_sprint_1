@@ -127,7 +127,12 @@ async def refresh(
 ) -> TokensResponse:
     await authorize.jwt_refresh_token_required()
 
-    return await jwt_service.refresh_token(authorize)
+    tokens = await jwt_service.refresh_token(authorize)
+
+    await authorize.set_access_cookies(tokens.access_token)
+    await authorize.set_refresh_cookies(tokens.refresh_token)
+
+    return tokens
 
 
 @router.patch('/change-username', status_code=HTTPStatus.OK)
