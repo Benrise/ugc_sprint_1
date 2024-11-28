@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     elastic_protocol: str = Field('http', alias='API_ELASTIC_PROTOCOL')
     elastic_host: str = Field('elasticsearch', alias='API_ELASTIC_HOST')
     elastic_port: int = Field(9200, alias='API_ELASTIC_PORT')
+    ugc_protocol: str = Field('http', alias='UGC_SERVICE_PROTOCOL')
+    ugc_host: str = Field('ugc', alias='UGC_SERVICE_HOST')
+    ugc_port: int = Field(8003, alias='UGC_SERVICE_PORT')
     debug: bool = Field(True, alias='API_DEBUG')
 
 

@@ -21,17 +21,17 @@ router = APIRouter()
 
 @router.post("/send_to_broker/{event_type}")
 async def send_to_broker(
-            event_type: str,
-            request: Request,
-            event_params: Optional[str] = None,
-            user_service: UserService = Depends(get_user_service),
-            kafka_service: KafkaAdapter = Depends(get_kafka_service)
-        ):
+    event_type: str,
+    request: Request,
+    event_data: Optional[dict] = None,
+    user_service: UserService = Depends(get_user_service),
+    kafka_service: KafkaAdapter = Depends(get_kafka_service)
+):
     token = request.cookies.get("access_token_cookie")
     if not token:
         raise HTTPException(status_code=401, detail="Токен отсутствует")
 
-    data = extract_query_params(request, event_params)
+    data = await request.json()
     if not data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Data is required")
 

@@ -2,12 +2,17 @@ import core.config as config
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from services.film import FilmService, get_film_service
+from services.ugc import UGCEventService
+
 from utils.enums import Sort
+
 from models.film import Film, FilmRating
 from models.abstract import PaginatedParams
+
+from dependencies.ugc import get_ugc_service
 
 
 router = APIRouter()
@@ -27,10 +32,22 @@ router = APIRouter()
                         writers,
                         directors
                     ''')
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+async def film_details(
+    request: Request,
+    film_id: str,
+    film_service: FilmService = Depends(get_film_service),
+    ugc_service: UGCEventService = Depends(get_ugc_service),
+) -> Film:
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+
+    await ugc_service.send_event(
+        request=request,
+        event_type='film_details',
+        data=film.dict()
+    )
+
     return Film(uuid=film.uuid,
                 title=film.title,
                 imdb_rating=film.imdb_rating,
@@ -46,6 +63,7 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
             summary='Получить список фильмов по запросу',
             description='Формат массива данных ответа: uuid, title, imdb_rating')
 async def films_list(
+        request: Request,
         query: str = Query(
             default='Star',
             strict=True,
@@ -53,7 +71,8 @@ async def films_list(
             description=config.QUERY_DESC,
         ),
         pagination: PaginatedParams = Depends(),
-        film_service: FilmService = Depends(get_film_service)) -> list[FilmRating]:
+        film_service: FilmService = Depends(get_film_service),
+        ugc_service: UGCEventService = Depends(get_ugc_service)) -> list[FilmRating]:
     searchs = await film_service.get_by_query(
         query,
         pagination.page,
@@ -61,9 +80,20 @@ async def films_list(
     )
     if not searchs:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
-    return [FilmRating(uuid=search.uuid, 
-                       title=search.title, 
-                       imdb_rating=search.imdb_rating) for search in searchs]
+
+    films = [FilmRating(
+        uuid=search.uuid,
+        title=search.title,
+        imdb_rating=search.imdb_rating) for search in searchs
+    ]
+
+    await ugc_service.send_event(
+        request=request,
+        event_type='film_filters',
+        data=dict(query=query, page=pagination.page, size=pagination.size)
+    )
+
+    return films
 
 
 @router.get('',

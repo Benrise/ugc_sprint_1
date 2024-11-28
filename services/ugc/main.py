@@ -49,7 +49,7 @@ async def health_check():
         "timestamp": datetime.datetime.now().isoformat(),
     }
 
-app.include_router(producer.router, prefix='/ugc/api/v1/producer', tags=['producer'])
+app.include_router(producer.router, prefix='/ugc/api/v1/produce', tags=['produce'])
 
 if __name__ == '__main__':
     uvicorn.run(
