@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from services.film import FilmService, get_film_service
 from services.ugc import UGCEventService
 
-from utils.enums import Sort
+from utils.enums import Sort, EventType
 
 from models.film import Film, FilmRating
 from models.abstract import PaginatedParams
@@ -44,7 +44,7 @@ async def film_details(
 
     await ugc_service.send_event(
         request=request,
-        event_type='film_details',
+        event_type=EventType.MOVIE_DETAILS,
         data=film.dict()
     )
 
@@ -89,7 +89,7 @@ async def films_list(
 
     await ugc_service.send_event(
         request=request,
-        event_type='film_filters',
+        event_type=EventType.MOVIE_FILTERS,
         data=dict(query=query, page=pagination.page, size=pagination.size)
     )
 

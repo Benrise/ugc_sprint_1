@@ -1,11 +1,6 @@
 from enum import Enum
 
 
-class Sort(str, Enum):
-    asc = 'asc',
-    desc = 'desc'
-
-
 class EventType(str, Enum):
     MOVIE_PROGRESS = "movie_progress"
     MOVIE_DETAILS = "movie_details"

@@ -13,15 +13,11 @@ async def main():
     clickhouse_service: ClickHouseAdapter = (
         await get_clickhouse_service(session, url=settings.clickhouse_url)
     )
+    await clickhouse_service.health_check()
 
     try:
-        response = await clickhouse_service.fetch("SELECT version()")
-        if response:
-            logger.info("Successfully connected to ClickHouse")
-        else:
-            logger.error(f"Failed to get response from ClickHouse: {response}")
-    except Exception as e:
-        logger.error(f"Error occurred while connecting to ClickHouse: {str(e)}")
+        logger.info("Starting ETL process")
+        await clickhouse_service.init()
     finally:
         await session.close()
 

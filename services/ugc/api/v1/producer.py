@@ -11,7 +11,7 @@ from fastapi import (
 
 from services.user import UserService
 from dependencies.user import get_user_service
-from utils.query_params import extract_query_params
+from utils.enums import EventType
 from dependencies.kafka import get_kafka_service
 from brokers.kafka import KafkaAdapter
 
@@ -21,9 +21,14 @@ router = APIRouter()
 
 @router.post("/send_to_broker/{event_type}")
 async def send_to_broker(
-    event_type: str,
     request: Request,
-    event_data: Optional[dict] = None,
+    event_type: EventType,
+    event_data: Optional[dict] = {
+        "movie_id": "1eb9cc6b-879f-4160-8971-918ecbe47a87",
+        "progress": 100.0,
+        "status": "completed",
+        "last_watched": "2023-11-20 12:32:23",
+    },
     user_service: UserService = Depends(get_user_service),
     kafka_service: KafkaAdapter = Depends(get_kafka_service)
 ):
