@@ -103,9 +103,9 @@ python create_superuser.py $AUTH_SUPERUSER_USERNAME $AUTH_SUPERUSER_PASSWORD
 
 После запуска системы документация API будет доступна по следующим ссылкам:
 
-http://localhost/movies/api/v1/docs — Сервис выдачи контента
-http://localhost/ugc/api/v1/docs — Сервис регистрации пользовательских событий
-http://localhost/auth/api/v1/docs — Сервис авторизации
-http://localhost/admin/api/v1/docs  — Сервис администрирования
+- http://localhost/movies/api/v1/docs — Сервис выдачи контента
+- http://localhost/ugc/api/v1/docs — Сервис регистрации пользовательских событий
+- http://localhost/auth/api/v1/docs — Сервис авторизации
+- http://localhost/admin/api/v1/docs  — Сервис администрирования
 
 *[!] Чтобы получить доступ ко всем сервисам (movies, ugc, admin), необходимо авторизоваться [!]*
