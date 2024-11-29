@@ -1,5 +1,7 @@
 import httpx
+
 from fastapi import Request
+
 from utils.logger import logger
 from utils.enums import EventType
 
@@ -9,8 +11,7 @@ class UGCEventService:
         self.base_url = base_url
 
     async def send_event(self, request: Request, event_type: EventType, data: dict):
-        query_event_data = "&".join([f"{key}={value}" for key, value in data.items()])
-        url = f"{self.base_url}/send_to_broker/{event_type}?event_data={query_event_data}"
+        url = f"{self.base_url}/send_to_broker/{event_type}"
 
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=data, headers=request.headers)

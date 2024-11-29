@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 from typing import Optional
 
@@ -43,15 +45,16 @@ async def send_to_broker(
     user_id = await user_service.get_user_id(token)
 
     data["date_event"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    data['user_id'] = user_id
+    data["user_id"] = user_id
 
     topic = f"{event_type}-events"
 
-    await kafka_service.produce(topic=topic, key=event_type, value=str(data))
+    await kafka_service.produce(topic=topic, key=event_type, value=json.dumps(data))
+
     return {
-        'detail': 'Event successfully sent to broker',
-        'data': data,
-        'user_id': user_id,
-        'event_type': event_type,
-        'topic': topic
+        "detail": "Event successfully sent to broker",
+        "data": data,
+        "user_id": user_id,
+        "event_type": event_type,
+        "topic": topic
     }

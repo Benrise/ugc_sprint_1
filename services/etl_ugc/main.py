@@ -6,6 +6,7 @@ from utils.logger import logger
 from db.clickhouse import ClickHouseAdapter
 from dependencies.clickhouse import get_clickhouse_service
 from core.settings import settings
+from services.etl import ETLService
 
 
 async def main():
@@ -13,11 +14,19 @@ async def main():
     clickhouse_service: ClickHouseAdapter = (
         await get_clickhouse_service(session, url=settings.clickhouse_url)
     )
+    etl_service = ETLService(
+        clickhouse_service=clickhouse_service,
+        kafka_servers=settings.kafka_bootstrap_servers,
+        kafka_topics=settings.kafka_topics,
+        batch_size=5
+    )
+
     await clickhouse_service.health_check()
 
     try:
         logger.info("Starting ETL process")
         await clickhouse_service.init()
+        await etl_service.start()
     finally:
         await session.close()
 

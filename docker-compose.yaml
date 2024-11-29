@@ -252,6 +252,7 @@ services:
       container_name: clickhouse
       volumes:
         - ./services/clickhouse/data:/var/lib/clickhouse
+        - ./services/clickhouse/logs:/var/log/clickhouse-server
       healthcheck:
         test: wget --no-verbose --tries=3 --spider http://localhost:8123/ping || exit 1
 

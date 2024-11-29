@@ -28,11 +28,13 @@ class ClickHouseAdapter(AnalyticDatabaseService):
             query_id: Optional[str] = None
     ) -> Any:
         try:
-            if params and query.strip().upper().startswith("INSERT"):
+            if not query.strip().upper().startswith("CREATE"):
+                logger.info('Executing query with params/args...')
                 result = await self.client.execute(
-                    query, args, params=params, query_id=query_id
+                    query, *args, params=params, query_id=query_id
                 )
             else:
+                logger.info('Executing query without params/args...')
                 result = await self.client.execute(query, query_id=query_id)
 
             logger.info(f"[{self.__class__.__name__}] Query executed successfully: {query}")

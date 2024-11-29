@@ -1,8 +1,8 @@
 MOVIE_PROGRESS_QUERY = {
     "create_table": """
         CREATE TABLE IF NOT EXISTS default.movie_progress (
-            user_id UUID,
-            movie_id UUID,
+            user_id String,
+            movie_id String,
             progress Float32,
             status Enum8('in_progress' = 1, 'completed' = 2),
             last_watched DateTime
@@ -11,14 +11,14 @@ MOVIE_PROGRESS_QUERY = {
     """,
     "insert_data": """
         INSERT INTO default.movie_progress (user_id, movie_id, progress, status, last_watched)
-        VALUES (%(user_id)s, %(movie_id)s, %(progress)s, %(status)s, %(last_watched)s);
+        VALUES
     """,
 }
 
 MOVIE_FILTERS_QUERY = {
     "create_table": """
         CREATE TABLE IF NOT EXISTS default.movie_filters (
-            user_id UUID,
+            user_id String,
             query String,
             page UInt32,
             size UInt32,
@@ -28,29 +28,28 @@ MOVIE_FILTERS_QUERY = {
     """,
     "insert_data": """
         INSERT INTO default.movie_filters (user_id, query, page, size, date_event)
-        VALUES (%(user_id)s, %(query)s, %(page)s, %(size)s, %(date_event)s);
+        VALUES
     """,
 }
 
 MOVIE_DETAILS_QUERY = {
     "create_table": """
         CREATE TABLE IF NOT EXISTS default.movie_details (
-            user_id UUID,
-            uuid UUID,
+            user_id String,
+            uuid String,
             title String,
             imdb_rating Float32,
             description String,
-            genres Array(String),
-            actors Array(String),
-            writers Array(String),
-            directors Array(String),
+            genres Array(Tuple(genre_uuid String, name String)),
+            actors Array(Tuple(actor_uuid String, full_name String)),
+            writers Array(Tuple(writer_uuid String, full_name String)),
+            directors Array(Tuple(director_uuid String, full_name String)),
             date_event DateTime
         ) ENGINE = ReplacingMergeTree(date_event)
         PRIMARY KEY (user_id, uuid);
     """,
     "insert_data": """
         INSERT INTO default.movie_details (user_id, uuid, title, imdb_rating, description, genres, actors, writers, directors, date_event)
-        VALUES (%(user_id)s, %(uuid)s, %(title)s, %(imdb_rating)s, %(description)s,
-                %(genres)s, %(actors)s, %(writers)s, %(directors)s, %(date_event)s);
+        VALUES
     """,
 }
