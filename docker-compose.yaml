@@ -232,6 +232,29 @@ services:
       ports:
         - ${KAFKA_UI_PORTS}
 
+    etl_ugc:
+      build: ./services/etl_ugc
+      container_name: etl_ugc
+      volumes:
+        - ./services/etl_ugc:/app:ro
+        - ./services/etl_ugc/logs:/app/logs
+      env_file:
+        - .env
+      depends_on:
+        clickhouse:
+          condition: service_healthy
+        kafka-0:
+          condition: service_healthy
+      restart: always
+
+    clickhouse:
+      build: ./services/clickhouse
+      container_name: clickhouse
+      volumes:
+        - ./services/clickhouse/data:/var/lib/clickhouse
+      healthcheck:
+        test: wget --no-verbose --tries=3 --spider http://localhost:8123/ping || exit 1
+
 volumes:
   kafka-0_data:
   kafka-1_data:

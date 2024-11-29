@@ -43,5 +43,8 @@ services/redis/data
 # elastic data
 services/es/data
 
+# clickhouse data
+services/clickhouse/data
+
 # logs data
 logs/
