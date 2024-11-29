@@ -21,6 +21,9 @@ class Settings(BaseSettings):
         "movie_filters-events",
         "movie_details-events",
     ]
+    etl_batch_size: int = Field(100, alias='UGC_ETL_BATCH_SIZE')
+    kafka_consume_timeout_seconds: int = Field(10, alias='UGC_ETL_KAFKA_CONSUME_TIMEOUT_SECONDS')
+    kafka_consume_max_records: int = Field(1000, alias='UGC_ETL_KAFKA_CONSUME_MAX_RECORDS')
 
     @property
     def clickhouse_url(self) -> str:

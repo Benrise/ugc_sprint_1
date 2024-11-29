@@ -1,10 +1,10 @@
 from typing import List, Dict, Any
 
 from aiokafka import AIOKafkaConsumer
-from pydantic import ValidationError
 
 from db.clickhouse import ClickHouseAdapter
 from utils.logger import logger
+from core.settings import settings
 from utils.sql_queries import (
     MOVIE_PROGRESS_QUERY,
     MOVIE_FILTERS_QUERY,
@@ -18,7 +18,7 @@ from schemas.events import (
 
 
 class ETLService:
-    def __init__(self, clickhouse_service: ClickHouseAdapter, kafka_servers: str, kafka_topics: List[str], batch_size: int = 100):
+    def __init__(self, clickhouse_service: ClickHouseAdapter, kafka_servers: str, kafka_topics: List[str], batch_size: int):
         self.clickhouse_service = clickhouse_service
         self.kafka_servers = kafka_servers
         self.kafka_topics = kafka_topics
@@ -44,8 +44,8 @@ class ETLService:
             logger.info("Kafka consumer started")
             while True:
                 messages = await self.consumer.getmany(
-                    timeout_ms=10000,
-                    max_records=100
+                    timeout_ms=settings.kafka_consume_timeout_seconds*1000,
+                    max_records=settings.kafka_consume_max_records
                 )
                 for topic_partition, messages_list in messages.items():
                     logger.info(f"Got {len(messages)} messages from topic {topic_partition.topic}")

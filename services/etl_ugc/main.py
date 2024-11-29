@@ -18,7 +18,7 @@ async def main():
         clickhouse_service=clickhouse_service,
         kafka_servers=settings.kafka_bootstrap_servers,
         kafka_topics=settings.kafka_topics,
-        batch_size=5
+        batch_size=settings.etl_batch_size
     )
 
     await clickhouse_service.health_check()
