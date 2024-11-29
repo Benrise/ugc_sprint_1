@@ -75,7 +75,7 @@ docker compose up --build -d
 
 - Для сервиса Admin:
 
-`
+```
 python manage.py check --deploy
 
 python manage.py migrate --no-input
@@ -85,16 +85,16 @@ python manage.py createsuperuser --no-input \
     --email $ADMIN_DJANGO_SUPERUSER_EMAIL
 
 python manage.py collectstatic --no-input
-`
-
+```
 - Для сервиса Auth:
-`
+
+```
 alembic upgrade head
 
 python create_roles.py
 
 python create_superuser.py $AUTH_SUPERUSER_USERNAME $AUTH_SUPERUSER_PASSWORD
-`
+```
 
 Последующие миграции для сервисов выполняются вручную.
 Таблицы для Clickhouse создаются автоматически при каждом запуске сервиса.
